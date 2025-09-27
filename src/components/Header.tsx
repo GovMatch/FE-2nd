@@ -9,6 +9,22 @@ interface HeaderProps {
   onNavigate: (page: PageType) => void;
 }
 
+// Kakao SDK 타입 선언
+declare global {
+  interface Window {
+    Kakao?: {
+      Share: {
+        sendDefault: (options: {
+          objectType: string;
+          url: string;
+          title: string;
+          description: string;
+        }) => void;
+      };
+    };
+  }
+}
+
 export function Header({ onNavigate }: HeaderProps) {
   const { user, logout } = useAuth();
   
