@@ -14,8 +14,10 @@ import {
   Award
 } from "lucide-react";
 
+import type { PageType } from "./Router";
+
 interface VoucherRecommendationProps {
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: PageType, programId?: string) => void;
 }
 
 interface RecommendedVoucher {

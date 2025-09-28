@@ -19,6 +19,7 @@ import {
   ExternalLink,
   Bookmark
 } from "lucide-react";
+import type { PageType } from "./Router";
 
 interface VoucherProgram {
   id: string;
@@ -40,7 +41,7 @@ interface VoucherProgram {
 }
 
 interface VoucherSectionProps {
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: PageType, programId?: string) => void;
 }
 
 export function VoucherSection({ onNavigate }: VoucherSectionProps) {

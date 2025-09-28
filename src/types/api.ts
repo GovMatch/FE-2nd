@@ -81,7 +81,7 @@ export interface ProgramData {
   matchScore?: number;
   applicants: number;
   maxApplicants: number;
-  status: "deadline-soon" | "active" | "upcoming";
+  status: "deadline-soon" | "active" | "upcoming" | "closed";
   categoryCode?: string;
 }
 

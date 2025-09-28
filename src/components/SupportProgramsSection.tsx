@@ -6,10 +6,12 @@ import { apiService, transformApiData } from "../services/api";
 import { ProgramData } from "../types/api";
 
 interface SupportProgramsSectionProps {
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: string, programId?: string) => void;
+  isUrgentFilter?: boolean;
+  searchTerm?: string;
 }
 
-export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionProps) {
+export function SupportProgramsSection({ onNavigate, isUrgentFilter = false, searchTerm = "" }: SupportProgramsSectionProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [programs, setPrograms] = useState<ProgramData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,19 +22,40 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
   const [hasPrev, setHasPrev] = useState(false);
   const [total, setTotal] = useState(0);
 
-  const fetchPrograms = async (page: number = 1) => {
+  const fetchPrograms = async (page: number = 1, urgent: boolean = false, search: string = "") => {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.fetchPrograms(page, 6);
 
-      const transformedPrograms = response.programs.map(transformApiData);
-      setPrograms(transformedPrograms);
-      setCurrentPage(response.page);
-      setTotalPages(response.totalPages);
-      setHasNext(response.hasNext);
-      setHasPrev(response.hasPrev);
-      setTotal(response.total);
+      if (search) {
+        // 검색 API 호출
+        const searchResults = await apiService.searchPrograms(search);
+        const transformedPrograms = searchResults.map(transformApiData);
+        setPrograms(transformedPrograms);
+        setCurrentPage(1);
+        setTotalPages(1);
+        setHasNext(false);
+        setHasPrev(false);
+        setTotal(transformedPrograms.length);
+      } else if (urgent) {
+        const urgentResponse = await apiService.fetchUrgentPrograms(page, 6);
+        const transformedPrograms = urgentResponse.programs.map(transformApiData);
+        setPrograms(transformedPrograms);
+        setCurrentPage(urgentResponse.page);
+        setTotalPages(urgentResponse.totalPages);
+        setHasNext(urgentResponse.hasNext);
+        setHasPrev(urgentResponse.hasPrev);
+        setTotal(urgentResponse.total);
+      } else {
+        const response = await apiService.fetchPrograms(page, 6);
+        const transformedPrograms = response.programs.map(transformApiData);
+        setPrograms(transformedPrograms);
+        setCurrentPage(response.page);
+        setTotalPages(response.totalPages);
+        setHasNext(response.hasNext);
+        setHasPrev(response.hasPrev);
+        setTotal(response.total);
+      }
     } catch (err) {
       console.error('Failed to fetch programs:', err);
       let errorMessage = '지원사업 데이터 불러오기에 실패했습니다.';
@@ -56,14 +79,15 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
   };
 
   useEffect(() => {
-    fetchPrograms(1);
-  }, []);
+    fetchPrograms(1, isUrgentFilter, searchTerm);
+  }, [isUrgentFilter, searchTerm]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      fetchPrograms(page);
+      fetchPrograms(page, isUrgentFilter, searchTerm);
     }
   };
+
 
   return (
     <section className="py-4 sm:py-6 lg:py-8 px-2 sm:px-4 lg:px-8">
@@ -72,16 +96,16 @@ export function SupportProgramsSection({ onNavigate }: SupportProgramsSectionPro
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
           <div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
-              매칭 가능한 정부지원사업
+              {searchTerm ? `"${searchTerm}" 검색 결과` : "매칭 가능한 정부지원사업"}
             </h2>
             <p className="text-sm sm:text-base text-gray-600">
               {loading ? (
-                "지원사업을 불러오는 중..."
+                searchTerm ? "검색 중..." : "지원사업을 불러오는 중..."
               ) : error ? (
                 <span className="text-red-600">{error}</span>
               ) : (
                 <>
-                  총 <span className="font-bold text-[#58d674]">{total.toLocaleString()}개</span>의 지원사업이 매칭되었습니다
+                  총 <span className="font-bold text-[#58d674]">{total.toLocaleString()}개</span>의 지원사업이 {searchTerm ? "검색되었습니다" : "매칭되었습니다"}
                 </>
               )}
             </p>

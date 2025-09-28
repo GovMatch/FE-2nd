@@ -11,6 +11,7 @@ import {
   Eye,
   ExternalLink
 } from "lucide-react";
+import type { PageType } from "./Router";
 
 interface UrgentProgram {
   id: string;
@@ -25,7 +26,7 @@ interface UrgentProgram {
 }
 
 interface UrgentNotificationBannerProps {
-  onNavigate?: (page: string) => void;
+  onNavigate?: (page: PageType, programId?: string) => void;
 }
 
 export function UrgentNotificationBanner({ onNavigate }: UrgentNotificationBannerProps) {

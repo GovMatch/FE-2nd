@@ -1,4 +1,4 @@
-import { Search, Filter, Calendar, Building2, DollarSign, Clock } from "lucide-react";
+import { Search, Filter, Calendar, Building2, DollarSign, Clock, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -9,10 +9,12 @@ import { apiService, transformApiData } from "../services/api";
 interface SearchAndFilterProps {
   onUrgentFilter: (isUrgent: boolean) => void;
   isUrgentActive: boolean;
+  onSearch: (searchTerm: string) => void;
 }
 
-export function SearchAndFilter({ onUrgentFilter, isUrgentActive }: SearchAndFilterProps) {
+export function SearchAndFilter({ onUrgentFilter, isUrgentActive, onSearch }: SearchAndFilterProps) {
   const [urgentCount, setUrgentCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchUrgentCount = async () => {
@@ -27,6 +29,21 @@ export function SearchAndFilter({ onUrgentFilter, isUrgentActive }: SearchAndFil
 
     fetchUrgentCount();
   }, []);
+
+  const handleSearch = () => {
+    onSearch(searchTerm.trim()); // 빈 검색어도 허용하여 전체 목록 표시
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    onSearch(""); // 빈 검색어로 전체 목록 로드
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   const quickFilters = [
     {
@@ -47,9 +64,25 @@ export function SearchAndFilter({ onUrgentFilter, isUrgentActive }: SearchAndFil
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <Input
           placeholder="지원사업명, 키워드, 기관명으로 검색..."
-          className="pl-12 pr-4 py-3 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#58d674] focus:ring-0 bg-gray-50"
+          className="pl-12 pr-20 py-3 text-lg border-2 border-gray-200 rounded-2xl focus:border-[#58d674] focus:ring-0 bg-gray-50"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyPress={handleKeyPress}
         />
-        <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#58d674] hover:bg-[#4bc961] text-white px-6 rounded-xl">
+        {searchTerm && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute right-20 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+            onClick={handleClearSearch}
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        )}
+        <Button
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#58d674] hover:bg-[#4bc961] text-white px-6 rounded-xl"
+          onClick={handleSearch}
+        >
           검색
         </Button>
       </div>

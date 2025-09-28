@@ -3,6 +3,7 @@ import { MainHeroSection } from "../components/MainHeroSection";
 import { VoucherSection } from "../components/VoucherSection";
 import { VoucherRecommendation } from "../components/VoucherRecommendation";
 import { SearchAndFilter } from "../components/SearchAndFilter";
+import { useState } from "react";
 import { SupportProgramsSection } from "../components/SupportProgramsSection";
 import { ProcessSection } from "../components/ProcessSection";
 import { PromoCodeInput } from "../components/PromoCodeInput";
@@ -12,10 +13,24 @@ import type { PageType } from "../components/Router";
 import { imgGroup47242, imgGroup47243 } from "../imports/svg-gjy2d";
 
 interface MainPageProps {
-  onNavigate: (page: PageType) => void;
+  onNavigate: (page: PageType, programId?: string) => void;
 }
 
 export function MainPage({ onNavigate }: MainPageProps) {
+  const [isUrgentFilter, setIsUrgentFilter] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleUrgentFilter = (urgent: boolean) => {
+    setIsUrgentFilter(urgent);
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    if (term) {
+      setIsUrgentFilter(false); // 검색시에만 긴급 필터 해제
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-x-hidden">
       {/* Geometric Background Pattern */}
@@ -81,11 +96,19 @@ export function MainPage({ onNavigate }: MainPageProps) {
           </div>
           
           <div className="bg-white/70 backdrop-blur-md rounded-[20px] sm:rounded-[40px] p-4 sm:p-6 lg:p-8 shadow-xl border border-white/30 mb-4 sm:mb-8">
-            <SearchAndFilter />
+            <SearchAndFilter
+              onUrgentFilter={handleUrgentFilter}
+              isUrgentActive={isUrgentFilter}
+              onSearch={handleSearch}
+            />
           </div>
           
           <div className="bg-white/70 backdrop-blur-md rounded-[20px] sm:rounded-[40px] p-4 sm:p-6 lg:p-8 shadow-xl border border-white/30 mb-4 sm:mb-8">
-            <SupportProgramsSection onNavigate={onNavigate} />
+            <SupportProgramsSection
+              onNavigate={onNavigate}
+              isUrgentFilter={isUrgentFilter}
+              searchTerm={searchTerm}
+            />
           </div>
         </div>
         
