@@ -7,7 +7,6 @@ import { useState } from "react";
 import { SupportProgramsSection } from "../components/SupportProgramsSection";
 import { ProcessSection } from "../components/ProcessSection";
 import { PromoCodeInput } from "../components/PromoCodeInput";
-import { MyMatchingInfoMain } from "../components/MyMatchingInfoMain";
 import { Footer } from "../components/Footer";
 import type { PageType } from "../components/Router";
 import { imgGroup47242, imgGroup47243 } from "../imports/svg-gjy2d";
@@ -19,6 +18,11 @@ interface MainPageProps {
 export function MainPage({ onNavigate }: MainPageProps) {
   const [isUrgentFilter, setIsUrgentFilter] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statsData, setStatsData] = useState({
+    totalPrograms: 0,
+    newThisWeek: 0,
+    urgentPrograms: 0
+  });
 
   const handleUrgentFilter = (urgent: boolean) => {
     setIsUrgentFilter(urgent);
@@ -29,6 +33,14 @@ export function MainPage({ onNavigate }: MainPageProps) {
     if (term) {
       setIsUrgentFilter(false); // 검색시에만 긴급 필터 해제
     }
+  };
+
+  const handleStatsUpdate = (total: number, urgent: number, newCount: number = 0) => {
+    setStatsData({
+      totalPrograms: total,
+      urgentPrograms: urgent,
+      newThisWeek: newCount
+    });
   };
 
   return (
@@ -80,7 +92,7 @@ export function MainPage({ onNavigate }: MainPageProps) {
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-white/80 backdrop-blur-sm" />
           <div className="relative z-10">
-            <MainHeroSection onNavigate={onNavigate} />
+            <MainHeroSection onNavigate={onNavigate} statsData={statsData} />
           </div>
         </div>
         
@@ -100,6 +112,7 @@ export function MainPage({ onNavigate }: MainPageProps) {
               onUrgentFilter={handleUrgentFilter}
               isUrgentActive={isUrgentFilter}
               onSearch={handleSearch}
+              onStatsUpdate={handleStatsUpdate}
             />
           </div>
           
@@ -108,6 +121,7 @@ export function MainPage({ onNavigate }: MainPageProps) {
               onNavigate={onNavigate}
               isUrgentFilter={isUrgentFilter}
               searchTerm={searchTerm}
+              onStatsUpdate={handleStatsUpdate}
             />
           </div>
         </div>

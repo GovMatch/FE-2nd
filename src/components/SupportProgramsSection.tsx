@@ -5,13 +5,16 @@ import { useState, useEffect } from "react";
 import { apiService, transformApiData } from "../services/api";
 import { ProgramData } from "../types/api";
 
+import type { PageType } from "./Router";
+
 interface SupportProgramsSectionProps {
-  onNavigate?: (page: string, programId?: string) => void;
+  onNavigate?: (page: PageType, programId?: string) => void;
   isUrgentFilter?: boolean;
   searchTerm?: string;
+  onStatsUpdate?: (total: number, urgent: number, newCount?: number) => void;
 }
 
-export function SupportProgramsSection({ onNavigate, isUrgentFilter = false, searchTerm = "" }: SupportProgramsSectionProps) {
+export function SupportProgramsSection({ onNavigate, isUrgentFilter = false, searchTerm = "", onStatsUpdate }: SupportProgramsSectionProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [programs, setPrograms] = useState<ProgramData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +58,12 @@ export function SupportProgramsSection({ onNavigate, isUrgentFilter = false, sea
         setHasNext(response.hasNext);
         setHasPrev(response.hasPrev);
         setTotal(response.total);
+
+        // 통계 정보 업데이트 (전체 지원사업 로드시에만)
+        if (!search && !urgent && onStatsUpdate) {
+          const urgentData = await apiService.fetchUrgentPrograms(1, 1);
+          onStatsUpdate(response.total, urgentData.total);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch programs:', err);

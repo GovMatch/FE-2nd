@@ -7,15 +7,32 @@ import type { PageType } from "./Router";
 
 interface MainHeroSectionProps {
   onNavigate: (page: PageType) => void;
+  statsData?: {
+    totalPrograms: number;
+    newThisWeek: number;
+    urgentPrograms: number;
+  };
 }
 
-export function MainHeroSection({ onNavigate }: MainHeroSectionProps) {
+export function MainHeroSection({ onNavigate, statsData }: MainHeroSectionProps) {
   const { user } = useAuth();
-  
+
   const stats = [
-    { label: "매칭 가능 지원사업", value: "127개", icon: Target },
-    { label: "이번 주 신규 등록", value: "15개", icon: Zap },
-    { label: "마감 임박 (D-7)", value: "8개", icon: Search }
+    {
+      label: "매칭 가능 지원사업",
+      value: `${(statsData?.totalPrograms || 0).toLocaleString()}개`,
+      icon: Target
+    },
+    {
+      label: "이번 주 신규 등록",
+      value: `${(statsData?.newThisWeek || 0).toLocaleString()}개`,
+      icon: Zap
+    },
+    {
+      label: "마감 임박",
+      value: `${(statsData?.urgentPrograms || 0).toLocaleString()}개`,
+      icon: Search
+    }
   ];
 
   // 사용자별 매칭 정보 (로그인 시에만 표시)

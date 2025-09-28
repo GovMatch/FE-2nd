@@ -1,18 +1,19 @@
-import { Search, Filter, Calendar, Building2, DollarSign, Clock, X } from "lucide-react";
+import { Search, Building2, DollarSign, Clock, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
 import { useState, useEffect } from "react";
-import { apiService, transformApiData } from "../services/api";
+import { apiService } from "../services/api";
 
 interface SearchAndFilterProps {
   onUrgentFilter: (isUrgent: boolean) => void;
   isUrgentActive: boolean;
   onSearch: (searchTerm: string) => void;
+  onStatsUpdate?: (total: number, urgent: number, newCount?: number) => void;
 }
 
-export function SearchAndFilter({ onUrgentFilter, isUrgentActive, onSearch }: SearchAndFilterProps) {
+export function SearchAndFilter({ onUrgentFilter, isUrgentActive, onSearch, onStatsUpdate }: SearchAndFilterProps) {
   const [urgentCount, setUrgentCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -49,12 +50,12 @@ export function SearchAndFilter({ onUrgentFilter, isUrgentActive, onSearch }: Se
     {
       label: "마감 임박",
       count: urgentCount,
-      color: "destructive",
+      color: "destructive" as const,
       action: () => onUrgentFilter(!isUrgentActive)
     },
-    { label: "신규 등록", count: 0, color: "default" },
-    { label: "인기 매칭", count: 0, color: "secondary" },
-    { label: "고액 지원", count: 0, color: "outline" }
+    { label: "신규 등록", count: 0, color: "default" as const },
+    { label: "인기 매칭", count: 0, color: "secondary" as const },
+    { label: "고액 지원", count: 0, color: "outline" as const }
   ];
 
   return (
@@ -96,7 +97,7 @@ export function SearchAndFilter({ onUrgentFilter, isUrgentActive, onSearch }: Se
             variant={
               filter.label === "마감 임박" && isUrgentActive
                 ? "default"
-                : filter.color as any
+                : filter.color
             }
             className={`px-4 py-2 cursor-pointer hover:opacity-80 transition-opacity ${
               filter.label === "마감 임박" && isUrgentActive
