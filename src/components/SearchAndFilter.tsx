@@ -3,13 +3,41 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { useState, useEffect } from "react";
+import { apiService, transformApiData } from "../services/api";
 
-export function SearchAndFilter() {
+interface SearchAndFilterProps {
+  onUrgentFilter: (isUrgent: boolean) => void;
+  isUrgentActive: boolean;
+}
+
+export function SearchAndFilter({ onUrgentFilter, isUrgentActive }: SearchAndFilterProps) {
+  const [urgentCount, setUrgentCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUrgentCount = async () => {
+      try {
+        const response = await apiService.fetchUrgentPrograms(1, 1);
+        setUrgentCount(response.total);
+      } catch (error) {
+        console.error("Failed to fetch urgent programs count:", error);
+        setUrgentCount(0);
+      }
+    };
+
+    fetchUrgentCount();
+  }, []);
+
   const quickFilters = [
-    { label: "마감 임박", count: 12, color: "destructive" },
-    { label: "신규 등록", count: 8, color: "default" },
-    { label: "인기 매칭", count: 15, color: "secondary" },
-    { label: "고액 지원", count: 6, color: "outline" }
+    {
+      label: "마감 임박",
+      count: urgentCount,
+      color: "destructive",
+      action: () => onUrgentFilter(!isUrgentActive)
+    },
+    { label: "신규 등록", count: 0, color: "default" },
+    { label: "인기 매칭", count: 0, color: "secondary" },
+    { label: "고액 지원", count: 0, color: "outline" }
   ];
 
   return (
@@ -30,10 +58,19 @@ export function SearchAndFilter() {
       <div className="flex flex-wrap items-center gap-3 mb-6">
         <span className="text-sm font-medium text-gray-600 mr-2">빠른 필터:</span>
         {quickFilters.map((filter) => (
-          <Badge 
-            key={filter.label} 
-            variant={filter.color as any}
-            className="px-4 py-2 cursor-pointer hover:opacity-80 transition-opacity"
+          <Badge
+            key={filter.label}
+            variant={
+              filter.label === "마감 임박" && isUrgentActive
+                ? "default"
+                : filter.color as any
+            }
+            className={`px-4 py-2 cursor-pointer hover:opacity-80 transition-opacity ${
+              filter.label === "마감 임박" && isUrgentActive
+                ? "bg-[#58d674] text-white"
+                : ""
+            }`}
+            onClick={filter.action}
           >
             {filter.label} ({filter.count})
           </Badge>
